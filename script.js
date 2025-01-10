@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <img src="${gift.image}" alt="${gift.name}">
         <h3>${gift.name}</h3>
         <p>${gift.description}</p>
-        <p>Цена: ${gift.price} руб.</p>
+        <p>Цена: ${gift.price} ₸</p>
       `;
       
       // Показываем кнопку удаления только для администратора
