@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const addGiftForm = document.getElementById('add-gift-form');
   const giftGrid = document.getElementById('gift-grid');
   const giftImageInput = document.getElementById('gift-image');
+  const giftPriceInput = document.getElementById('gift-price');
 
   const adminCredentials = {
     email: 'zhanar88033@gmail.com',
@@ -26,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <img src="${gift.image}" alt="${gift.name}">
         <h3>${gift.name}</h3>
         <p>${gift.description}</p>
+        <p>Цена: ${gift.price} руб.</p>
       `;
       
       // Показываем кнопку удаления только для администратора
@@ -45,9 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   // Сохранение нового подарка
-  const saveGift = (name, description, image) => {
+  const saveGift = (name, description, image, price) => {
     const gifts = JSON.parse(localStorage.getItem('gifts')) || [];
-    gifts.push({ name, description, image });
+    gifts.push({ name, description, image, price });
     localStorage.setItem('gifts', JSON.stringify(gifts));
     loadGifts();
   };
@@ -74,13 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     const name = document.getElementById('gift-name').value;
     const description = document.getElementById('gift-description').value;
+    const price = giftPriceInput.value;
     const file = giftImageInput.files[0];
 
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
         const image = reader.result; // Содержимое файла в формате base64
-        saveGift(name, description, image);
+        saveGift(name, description, image, price);
         addGiftForm.reset();
         alert('Подарок добавлен!');
       };
