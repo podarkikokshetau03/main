@@ -97,3 +97,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 });
+document.addEventListener('DOMContentLoaded', () => {
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const loginForm = document.getElementById('login-form');
+  const adminPanel = document.getElementById('admin-panel');
+
+  const adminCredentials = {
+    email: 'zhanar88033@gmail.com',
+    password: 'rootadmin',
+  };
+
+  loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = emailInput.value.trim();
+    const password = passwordInput.value.trim();
+
+    if (email === adminCredentials.email && password === adminCredentials.password) {
+      alert('Добро пожаловать, администратор!');
+      adminPanel.classList.remove('hidden');
+      loginForm.classList.add('hidden');
+    } else {
+      alert('Неверный email или пароль.');
+    }
+  });
+});
