@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
       <img src="${imageSrc}" alt="${name}">
       <h3>${name}</h3>
       <p>${description}</p>
-      <p>Цена: ${price} руб.</p>
+      <p>Цена: ${price} тг</p>
       ${isAdmin ? '<button class="delete-btn">Удалить</button>' : ''}
     `;
 
