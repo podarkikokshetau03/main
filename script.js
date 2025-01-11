@@ -7,50 +7,32 @@ document.addEventListener('DOMContentLoaded', () => {
   const addGiftForm = document.getElementById('add-gift-form');
   const giftGrid = document.getElementById('gift-grid');
 
+  // Данные для входа администратора
   const adminCredentials = {
     email: 'zhanar88033@gmail.com',
     password: 'rootadmin',
   };
 
-  // Обработка входа
+  let isAdmin = false; // Флаг для проверки роли администратора
+
+  // Вход в аккаунт
   loginBtn.addEventListener('click', () => {
     const email = emailInput.value.trim();
     const password = passwordInput.value.trim();
 
     if (email === adminCredentials.email && password === adminCredentials.password) {
       alert('Добро пожаловать, администратор!');
+      isAdmin = true; // Устанавливаем флаг администратора
       adminPanel.classList.remove('hidden'); // Показываем панель администратора
       loginForm.classList.add('hidden'); // Скрываем форму входа
+      updateDeleteButtons(); // Обновляем кнопки удаления
     } else {
       alert('Неверные данные');
     }
   });
 
-  // Загрузка товаров с сервера
-  const loadGifts = async () => {
-    try {
-      const response = await fetch('api/get_gifts.php');
-      const gifts = await response.json();
-
-      giftGrid.innerHTML = '';
-      gifts.forEach(gift => {
-        const giftItem = document.createElement('div');
-        giftItem.classList.add('gift-item');
-        giftItem.innerHTML = `
-          <img src="${gift.image_path}" alt="${gift.name}">
-          <h3>${gift.name}</h3>
-          <p>${gift.description}</p>
-          <p>Цена: ${gift.price} руб.</p>
-        `;
-        giftGrid.appendChild(giftItem);
-      });
-    } catch (error) {
-      console.error('Ошибка загрузки подарков:', error);
-    }
-  };
-
-  // Добавление нового подарка
-  addGiftForm.addEventListener('submit', async (e) => {
+  // Обработка добавления товара
+  addGiftForm.addEventListener('submit', (e) => {
     e.preventDefault();
 
     const name = document.getElementById('gift-name').value.trim();
@@ -63,31 +45,55 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('description', description);
-    formData.append('price', price);
-    formData.append('image', file);
-
-    try {
-      const response = await fetch('api/add_gift.php', {
-        method: 'POST',
-        body: formData,
-      });
-      const result = await response.json();
-
-      if (result.success) {
-        alert('Подарок добавлен!');
-        addGiftForm.reset();
-        loadGifts(); // Обновляем список товаров
-      } else {
-        alert(`Ошибка: ${result.message}`);
-      }
-    } catch (error) {
-      console.error('Ошибка добавления подарка:', error);
-    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const imageSrc = reader.result; // Изображение в base64
+      addGiftToHTML(name, description, price, imageSrc);
+      addGiftForm.reset(); // Сбрасываем форму
+    };
+    reader.readAsDataURL(file);
   });
 
-  // Инициализация
-  loadGifts();
+  // Добавление товара в HTML
+  const addGiftToHTML = (name, description, price, imageSrc) => {
+    const giftItem = document.createElement('div');
+    giftItem.classList.add('gift-item');
+    giftItem.innerHTML = `
+      <img src="${imageSrc}" alt="${name}">
+      <h3>${name}</h3>
+      <p>${description}</p>
+      <p>Цена: ${price} руб.</p>
+      ${isAdmin ? '<button class="delete-btn">Удалить</button>' : ''}
+    `;
+
+    // Добавляем обработчик для кнопки удаления
+    if (isAdmin) {
+      const deleteBtn = giftItem.querySelector('.delete-btn');
+      deleteBtn.addEventListener('click', () => {
+        giftItem.remove();
+      });
+    }
+
+    giftGrid.appendChild(giftItem);
+  };
+
+  // Обновление кнопок удаления (для текущих товаров)
+  const updateDeleteButtons = () => {
+    if (!isAdmin) return;
+
+    document.querySelectorAll('.gift-item').forEach(giftItem => {
+      if (!giftItem.querySelector('.delete-btn')) {
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Удалить';
+        deleteBtn.classList.add('delete-btn');
+
+        // Добавляем обработчик кнопки удаления
+        deleteBtn.addEventListener('click', () => {
+          giftItem.remove();
+        });
+
+        giftItem.appendChild(deleteBtn);
+      }
+    });
+  };
 });
